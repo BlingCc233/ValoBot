@@ -1,20 +1,15 @@
 import os
+import time
 
 import requests
 import json
 
 
-current_path = os.getcwd()
-print(current_path)
-# 打开并保存nmd.json
-with open('nmd.json', 'r') as f:
-    nmd = json.load(f)
-
 url = "http://localhost:3000/send_group_msg"
 
 def send_voice(msg):
     payload = json.dumps({
-        "group_id": 701436956,
+        "group_id": 763934082,
         "message": msg
     })
     headers = {
@@ -26,4 +21,13 @@ def send_voice(msg):
     print(response.text)
 
 if __name__ == '__main__':
-    send_voice(nmd['message'])
+    # 定时任务每两小时执行一次
+    time.sleep(7200)
+
+    with open('data.txt', 'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        send_voice(line)
+
+    os.remove('data.txt')

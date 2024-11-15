@@ -125,6 +125,20 @@ def save_cache(data):
             f.writelines(lines)
             logging.info('Cache saved')
 
+def save_bbox(data):
+    if 'raw_message' in data:
+        with open('OtherUse/data.txt', 'a') as f:
+            f.write(data['raw_message'] + '\n')
+
+    #当data最多存1000条，就删除最旧的那一条
+    if len(open('OtherUse/data.txt', 'r').readlines()) > 1000:
+        with open('OtherUse/data.txt', 'r') as f:
+            lines = f.readlines()
+            lines.pop(0)
+        with open('OtherUse/data.txt', 'w') as f:
+            f.writelines(lines)
+            logging.info('Cache saved')
+
 def handle(data):
     if data['user_id'] not in Config.user_white_list and debug_mode:
         return
@@ -133,7 +147,7 @@ def handle(data):
             logging.info(data)
 
             if data['group_id'] == 309887999 and data['message'][0]['type'] == 'record' and data['post_type'] == 'message':
-                send_group_msg('', data['raw_message']).send_raw_msg(763934082)
+                save_bbox(data)
             return
 
     save_cache(data)
@@ -171,7 +185,7 @@ def handle(data):
             if data['message_type'] == 'group':
                 if debug_mode and data['group_id'] == Config.group_id:
                     logging.debug('Recieved....')
-                    send_group_msg(data['group_id'], 'Plugins/test/remind.mp3').send_record()
+
         if data['group_id'] == 701436956 and data['message'][0]['type'] == 'record':
             nmd = {
                 "message": str(data['raw_message'])
