@@ -1,21 +1,20 @@
-import uvicorn
-from fastapi import FastAPI, Request
+from flask import Flask, request, jsonify
 import api
 import logging
 
 from Config import debug_mode
+
 if debug_mode:
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-app = FastAPI()
+app = Flask(__name__)
 
-
-@app.post("/")
-async def root(request: Request):
-    data = await request.json()  # 获取事件数据
+@app.route("/", methods=['POST'])
+def root():
+    data = request.json  # 获取事件数据
     api.handle(data)
-    return {}
+    return jsonify({})
 
 if __name__ == "__main__":
     print(debug_mode)
-    uvicorn.run(app, port=8080)
+    app.run(port=3050, debug=debug_mode)
