@@ -187,19 +187,25 @@ def handle(data):
                     logging.debug('Recieved....')
 
         if data['group_id'] == 701436956 and data['message'][0]['type'] == 'record':
-            nmd = {
-                "message": str(data['raw_message'])
-            }
-            # 将字典写入 JSON 文件
-            with open('OtherUse/nmd.json', 'w') as file:
-                json.dump(nmd, file, indent=4)
+            save_bbox(data)
+            # nmd = {
+            #     "message": str(data['raw_message'])
+            # }
+            # # 将字典写入 JSON 文件
+            # with open('OtherUse/nmd.json', 'w') as file:
+            #     json.dump(nmd, file, indent=4)
+            #
+            # # 工作目录切换到 OtherUse
+            # os.chdir('OtherUse')
+            # from OtherUse.voice_forward import send_voice
+            # send_voice(nmd['message'])
+            # os.system("python3.11 voice_forward.py")
+            # os.chdir('..')
 
-            # 工作目录切换到 OtherUse
-            os.chdir('OtherUse')
-            from OtherUse.voice_forward import send_voice
-            send_voice(nmd['message'])
-            os.system("python3.11 voice_forward.py")
-            os.chdir('..')
+            # TODO
+            bash_command = f"python3.11 OtherUse/voice_forward.py '{data['raw_message']}'"
+            # 用bash 执行命令
+
 
 
 
