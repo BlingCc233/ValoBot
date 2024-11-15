@@ -58,4 +58,4 @@ _ValoBot的动漫形象来源于[OhotoAi](https://wonder-egg-priority.com/charac
 - 1.本机器人仅供学习交流使用，请勿用于非法用途，否则后果自负。
 - 2.本机器人仍处于开发阶段，功能尚未完善，使用中的错误请反馈
 - 3.机器人的部署需自行搭建，请自行Refer。
-- 4.开源协议：GPL
+- 4.开源协议：General Public License v3.0
