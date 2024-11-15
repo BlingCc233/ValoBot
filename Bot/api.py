@@ -69,14 +69,20 @@ class send_group_msg():
         }
         return requests.post(self.url, json=data)
 
-    def send_text_and_pic(self, user_id):
+    def send_text_and_pic(self, text_msg, user_id):
         data = {
             "group_id": self.group_id,
             "message": [
                 {
+                    "type": "at",
+                    "data": {
+                        "qq": user_id
+                    }
+                },
+                {
                     "type": "text",
                     "data": {
-                        "text": "每日商店"
+                        "text": f"\n{text_msg}"
                     }
                 },
                 {
@@ -110,8 +116,10 @@ def handle(data):
             command = data['message'][0]['data']['text'].split(' ')
             if command[0] == '/test':
                 shop = Plugins.valo_shop.get_shop(data['user_id'])
+                if shop == None:
+                    send_group_msg(data['group_id'], '登录掌瓦时出问题了').send_text()
                 logging.info(shop)
-                send_group_msg(data['group_id'], shop).send_text_and_pic(data['user_id'])
+                send_group_msg(data['group_id'], shop).send_text_and_pic("每日商店", data['user_id'])
 
 
 
