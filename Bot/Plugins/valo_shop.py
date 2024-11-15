@@ -1,5 +1,6 @@
 import base64
-import logging
+import http
+import json
 import os
 import shutil
 
@@ -16,7 +17,6 @@ if not os.path.exists(assets_folder) or not os.path.isdir(assets_folder):
     parent_path = os.path.dirname(current_path)
     os.chdir(parent_path)
 
-from Plugins.valo_config import user_data
 
 def download_image(url, user_id,filename):
     response = requests.get(url)
@@ -26,7 +26,6 @@ def download_image(url, user_id,filename):
 def get_shop(user_id):
     url = "https://app.mval.qq.com/go/mlol_store/agame/user_store"
 
-    print(user_data[user_id]['userId'], user_data[user_id]['tid'])
     headers = {
         "Accept": "*/*",
         "Upload-Draft-Interop-Version": "5",
@@ -38,17 +37,11 @@ def get_shop(user_id):
         "Connection": "keep-alive",
         "Upload-Complete": "?1",
         "GH-HEADER": "1-2-105-160-0",
-        "Cookie": "acctype=qc; userId={}; tid={}; clientType=10; accountType=5".format(user_data[user_id]['userId'], user_data[user_id]['tid'])
+        "Cookie": "acctype=qc; userId=JA-527f1ae2bb464f19-a16ae7ed3ba4cd2e; tid=C147AEB095DC44D27D116088FDCFEBE9037B5214E238FB3812954513E7C1CDBB8BFCEF41053520F8E2514812DCAA714146BA8577047FD40FC663F7DED577815C1322AA34D58F19089C9F237F47BB73B738C2CC3CA4AB5380FF5CED13324B50BD1D919882B6498BC836D4610DAA37C6281C6A18D4E98054921E3B29FB37198308E7894ADA347424819EBB4EC84162469E7FE397BC7F683B2BA9350877C73A99446D492E139A23847D18C071029B68A428; clientType=10; accountType=5"
     }
 
-    data = {}
-
-    response = requests.post(url, headers=headers, json=data)
-    #如果response.status_code == 200，说明请求成功
-    if response.status_code != 200:
-        logging.warn("请求失败")
-        return None
-
+    response = requests.post(url, headers=headers)
+    print(response.json())
     data = response.json()
     data = data['data'][0]
     lists = data['list']
