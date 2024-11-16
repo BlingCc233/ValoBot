@@ -2,13 +2,13 @@ import logging
 import Plugins
 import requests
 import Config
-import subprocess
 
 debug_mode = Config.debug_mode
 if debug_mode:
     import shutil
     import os
     import json
+    import subprocess
 
 
 class send_private_msg():
@@ -110,59 +110,73 @@ class handle_user_event():
         nickname = data['data']['nick']
         return nickname
 
+class cache_data():
+    def __init__(self, data):
+        self.data = data
 
-def save_cache(data):
-    if 'raw_message' in data:
-        with open('Assets/data/data.txt', 'a') as f:
-            f.write(str(data['message_id']) + 'å' + data['raw_message'] + 'å' + str(data['user_id']) + '\n')
+    def save_cache(self):
+        if 'raw_message' in self.data:
+            with open('Assets/data/data.txt', 'a') as f:
+                f.write(str(self.data['message_id']) + 'å' + self.data['raw_message'] + 'å' + str(self.data['user_id']) + '\n')
+        # data最多存1000条，就删除最旧的那一条
+        if len(open('Assets/data/data.txt', 'r').readlines()) > 1000:
+            with open('Assets/data/data.txt', 'r') as f:
+                lines = f.readlines()
+                lines.pop(0)
+            with open('Assets/data/data.txt', 'w') as f:
+                f.writelines(lines)
+                logging.info('Cache saved')
 
-    #当data最多存1000条，就删除最旧的那一条
-    if len(open('Assets/data/data.txt', 'r').readlines()) > 1000:
-        with open('Assets/data/data.txt', 'r') as f:
-            lines = f.readlines()
-            lines.pop(0)
-        with open('Assets/data/data.txt', 'w') as f:
-            f.writelines(lines)
-            logging.info('Cache saved')
+    def save_bbox(self):
+        if 'raw_message' in self.data:
+            with open('OtherUse/data.txt', 'a') as f:
+                f.write(self.data['raw_message'] + '\n')
 
-def save_bbox(data):
-    if 'raw_message' in data:
-        with open('OtherUse/data.txt', 'a') as f:
-            f.write(data['raw_message'] + '\n')
+        # 当data最多存1000条，就删除最旧的那一条
+        if len(open('OtherUse/data.txt', 'r').readlines()) > 1000:
+            with open('OtherUse/data.txt', 'r') as f:
+                lines = f.readlines()
+                lines.pop(0)
+            with open('OtherUse/data.txt', 'w') as f:
+                f.writelines(lines)
+                logging.info('Cache saved')
 
-    #当data最多存1000条，就删除最旧的那一条
-    if len(open('OtherUse/data.txt', 'r').readlines()) > 1000:
-        with open('OtherUse/data.txt', 'r') as f:
-            lines = f.readlines()
-            lines.pop(0)
-        with open('OtherUse/data.txt', 'w') as f:
-            f.writelines(lines)
-            logging.info('Cache saved')
+class handle_notice():
+    def __init__(self, group_id, message_id):
+        self.group_id = group_id
+        self.message_id = message_id
+
+    anti_recall = Plugins.anti_recall
+
+
 
 def handle(data):
+    if 'group_id' in data:
+        if data['group_id'] not in Config.group_white_list or data['group_id'] not in Config.listen_on_group_list:
+            return
+        if data['group_id'] in 309887999 and data['message'][0]['type'] == 'record' and data['post_type'] == 'message':
+            cache_data(data).save_bbox()
+        return
+
     if data['user_id'] not in Config.user_white_list and debug_mode:
         return
-    if 'group_id' in data:
-        if data['group_id'] not in Config.group_white_list:
-            logging.info(data)
 
-            if data['group_id'] == 309887999 and data['message'][0]['type'] == 'record' and data['post_type'] == 'message':
-                save_bbox(data)
-            return
+    cache_data(data).save_cache()
 
-    save_cache(data)
+    if data['post_type'] == 'notice':
+        if Config.is_recall and data['notice_type'] == 'group_recall':
+            # 对于已经撤回的消息，从Assests/data/data.txt中读取与data['message_id']相同的message_id的raw_message
+            try:
+                with open('Assets/data/data.txt', 'r') as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if line.split('å')[0] == str(data['message_id']):
+                            raw_message = line.split('å')[1] + f'\n__' + handle_user_event(line.split('å')[2]).get_user_nickname()
+                            break
+            except:
+                pass
+            send_group_msg('', raw_message).send_raw_msg(data['group_id'])
 
-
-    if data['post_type'] == 'notice' and data['notice_type'] == 'group_recall':
-        #对于已经撤回的消息，从Assests/data/data.txt中读取与data['message_id']相同的message_id的raw_message
-        with open('Assets/data/data.txt', 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if line.split('å')[0] == str(data['message_id']):
-                    raw_message = line.split('å')[1] + f'\n__' + handle_user_event(line.split('å')[2]).get_user_nickname()
-                    break
-
-        send_group_msg(data['group_id'], raw_message).send_text()
         return
 
     if debug_mode:
@@ -183,11 +197,11 @@ def handle(data):
 
 
             if data['message_type'] == 'group':
-                if debug_mode and data['group_id'] == Config.group_id:
+                if debug_mode and data['group_id'] == Config.test_group:
                     logging.debug('Recieved....')
 
         if data['group_id'] == 701436956 and data['message'][0]['type'] == 'record':
-            save_bbox(data)
+            cache_data(data).save_bbox()
             # nmd = {
             #     "message": str(data['raw_message'])
             # }
