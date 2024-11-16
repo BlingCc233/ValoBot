@@ -16,12 +16,20 @@
   </a>
 -->
 </p>
+  
+_ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/character/ai/)_
+
+</div>
 
 ## 声明
-一切开发旨在学习，请勿用于非法用途
+
+> [!CAUTION]\
+> 请不要在 QQ 官方群聊和任何影响力较大的简中互联网平台（包括但不限于: 哔哩哔哩，微博，知乎，抖音等）发布和讨论任何与本插件存在相关性的信息
+> 仅供学习用途，请勿用于非法用途。
+> 他人滥用本项目导致非法后果与本人及相关项目无关。
+
   <br/>
-_ValoBot的动漫形象来源于[OhotoAi](https://wonder-egg-priority.com/character/ai/)_
-</div>
+  
 
 ## 启动#TODO
 
