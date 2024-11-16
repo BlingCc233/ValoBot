@@ -5,6 +5,8 @@ import Plugins
 import requests
 import Config
 
+from Plugins.Setu import Setu
+
 debug_mode = Config.debug_mode
 if debug_mode:
     import shutil
@@ -69,15 +71,30 @@ class send_group_msg():
         return requests.post(self.url, json=data)
 
     def send_img(self):
-        data = {
-            'group_id': self.group_id,
-            'message': [{
-                'type': 'image',
-                'data': {
-                    'file': str(self.message)
+        # 判断message如果是一个长度大于1的列表，就发送列表中的所有图片，否则就发送单个图片
+        if type(self.message) == list:
+            for url in self.message:
+                data = {
+                    'group_id': self.group_id,
+                    'message': [{
+                        'type': 'image',
+                        'data': {
+                            'file': url
+                        }
+                    }]
                 }
-            }]
-        }
+                requests.post(self.url, json=data)
+            return
+        else:
+            data = {
+                'group_id': self.group_id,
+                'message': [{
+                    'type': 'image',
+                    'data': {
+                        'file': str(self.message)
+                    }
+                }]
+            }
         return requests.post(self.url, json=data)
 
     def send_text_and_pic(self, text_msg, user_id):
@@ -239,8 +256,14 @@ class handle_msg():
                                                      f'{list(self.commands.keys())}').send_text()
             elif command == 'shop':
                 return self.valo_shop()
-        #     elif command == 2:
-        #
+            elif command == 'setu':
+                keyword = ''
+                try:
+                    keyword = self.raw_message.split(' ')[1]
+                except:
+                    pass
+                pics = Setu(1, keyword).setu()
+                send_group_msg(self.group_id, pics).send_img()
             elif command == 'echo':
                 return send_group_msg('', self.raw_message[6:]).send_raw_msg(self.group_id)
             elif command == 'roll':
@@ -250,6 +273,7 @@ class handle_msg():
                     num = None
                     pass
                 return self.dice(num)
+            return
 
         if self.message_type == 'at' and self.message['data']['qq'] == str(Config.self_id):
             if debug_mode:
@@ -258,6 +282,10 @@ class handle_msg():
             reply_word = random.choice(reply_words)
             send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
                                f'{reply_word}').send_raw_msg(self.group_id)
+            return
+
+        else:
+            self.handle_keyword()
 
 
         return
@@ -280,7 +308,12 @@ class handle_msg():
         logging.info(shop)
         send_group_msg(self.group_id, shop).send_text_and_pic("每日商店", self.user_id)
 
+    def handle_keyword(self):
+        pics = Setu(2, self.raw_message).setu()
+        if pics != -1:
+            send_group_msg(self.group_id, pics).send_img()
 
+        return
 
     def dice(self, result):
         url = self.url + '/send_group_msg'
@@ -302,13 +335,13 @@ class handle_msg():
 
 def handle(data):
     if 'group_id' in data: # 千万别改
-        if data['group_id'] not in Config.group_white_list or data['group_id'] not in Config.listen_on_group_list:
-            return
         if data['group_id'] in Config.listen_on_group_list and data['message'][0]['type'] == 'record':
             cache_data(data).save_bbox()
             return
+        if data['group_id'] not in Config.group_white_list:
+            return
 
-    logging.info("RRRR")
+
 
     if (data['user_id'] not in Config.user_white_list and debug_mode) or data['user_id'] in Config.user_black_list:
         return
@@ -328,6 +361,8 @@ def handle(data):
         if data['message_type'] == 'private':
             handle_msg(data).private_msg()
             return
+
+
 
 
     # 历史遗留问题
@@ -351,7 +386,7 @@ def handle(data):
         # TODO
         bash_command = f"python3.11 OtherUse/voice_forward.py '{data['raw_message']}'"
         # 用bash 执行命令
-        '''
+    '''
 
 
 
