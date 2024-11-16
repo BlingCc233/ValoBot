@@ -301,11 +301,12 @@ class handle_msg():
 
 
 def handle(data):
-    if 'message_type' == 'group':
+    if data['message_type'] == 'group':
         if data['group_id'] not in Config.group_white_list or data['group_id'] not in Config.listen_on_group_list:
             return
-        if data['group_id'] in Config.listen_on_group_list and data['message'][0]['type'] == 'record' and data['post_type'] == 'message':
+        if data['group_id'] in Config.listen_on_group_list and data['message'][0]['type'] == 'record':
             cache_data(data).save_bbox()
+            return
         return
 
     if (data['user_id'] not in Config.user_white_list and debug_mode) or data['user_id'] in Config.user_black_list:

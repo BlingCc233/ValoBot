@@ -12,7 +12,7 @@ self_id = 2415364721
 user_white_list = [1342171891,1710524004,3040002817]
 group_white_list = [701436956,398989654,763934082]
 user_black_list = []
-listen_on_group_list = [309887999]
+listen_on_group_list = [309887999,701436956]
 
 is_recall = False
 
