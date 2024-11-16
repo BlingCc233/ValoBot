@@ -12,6 +12,10 @@ app = Flask(__name__)
 @app.route("/", methods=['POST'])
 def root():
     data = request.json  # 获取事件数据
+
+    if debug_mode:
+        logging.info(data)
+
     api.handle(data)
     return jsonify({})
 
