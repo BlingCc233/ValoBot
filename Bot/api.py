@@ -301,13 +301,14 @@ class handle_msg():
 
 
 def handle(data):
-    if data['message_type'] == 'group':
+    if 'group_id' in data: # 千万别改
         if data['group_id'] not in Config.group_white_list or data['group_id'] not in Config.listen_on_group_list:
             return
         if data['group_id'] in Config.listen_on_group_list and data['message'][0]['type'] == 'record':
             cache_data(data).save_bbox()
             return
-        return
+
+    logging.info("RRRR")
 
     if (data['user_id'] not in Config.user_white_list and debug_mode) or data['user_id'] in Config.user_black_list:
         return
@@ -330,6 +331,7 @@ def handle(data):
 
 
     # 历史遗留问题
+    '''
     if data['group_id'] == 701436956 and data['message'][0]['type'] == 'record':
         cache_data(data).save_bbox()
         # nmd = {
@@ -349,6 +351,7 @@ def handle(data):
         # TODO
         bash_command = f"python3.11 OtherUse/voice_forward.py '{data['raw_message']}'"
         # 用bash 执行命令
+        '''
 
 
 
