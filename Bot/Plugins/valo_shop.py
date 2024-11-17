@@ -49,7 +49,11 @@ def get_shop(user_id):
         logging.warn("请求失败")
         return None
 
+
     data = response.json()
+    if data['result'] == 1001:
+        return None
+
     data = data['data'][0]
     lists = data['list']
 

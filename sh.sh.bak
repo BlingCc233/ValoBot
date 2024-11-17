@@ -1,0 +1,11 @@
+/Users/ccbling/Library/Containers/com.tencent.qq/Data/Documents
+
+/Applications/QQ.app/Contents/MacOS/QQ --no-sandbox -q
+
+ echo 'termcapinfo xterm* ti@:te@' >> ~/.screenrc
+
+ screen -dmS napcat bash -c "xvfb-run -a qq --no-sandbox -q "
+
+ screen -S napcat -X quit
+
+ 

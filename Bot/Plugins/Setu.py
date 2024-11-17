@@ -25,7 +25,7 @@ class Setu():
             num = 1
             tag = []
 
-            prefix_setu = ['整点', '来张', '来点', '搞点', '我要', '看看']
+            prefix_setu = ['整点', '来张', '来点', '搞点', '我要', '看看', '给我', '来份']
             if any(self.keyword.startswith(i) for i in prefix_setu):
                 prefix = [i for i in prefix_setu if self.keyword.startswith(i)][0]
                 sufix = [i for i in setu_keyword if i in self.keyword][-1]

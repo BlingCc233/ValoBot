@@ -263,7 +263,10 @@ class handle_msg():
                 except:
                     pass
                 pics = Setu(1, keyword).setu()
-                send_group_msg(self.group_id, pics).send_img()
+                if pics == -1:
+                    send_group_msg(self.group_id, '少🦌一点').send_text()
+                else:
+                    send_group_msg(self.group_id, pics).send_img()
             elif command == 'echo':
                 return send_group_msg('', self.raw_message[6:]).send_raw_msg(self.group_id)
             elif command == 'roll':
@@ -310,7 +313,9 @@ class handle_msg():
 
     def handle_keyword(self):
         pics = Setu(2, self.raw_message).setu()
-        if pics != -1:
+        if pics == -1:
+            send_group_msg(self.group_id, '少🦌一点').send_text()
+        else:
             send_group_msg(self.group_id, pics).send_img()
 
         return
