@@ -4,6 +4,7 @@ import random
 import Plugins
 import requests
 import Config
+from Bot.Plugins.jrrp import JRRP
 
 from Plugins.Setu import Setu
 
@@ -73,6 +74,7 @@ class send_group_msg():
     def send_img(self):
         # 判断message如果是一个长度大于1的列表，就发送列表中的所有图片，否则就发送单个图片
         if type(self.message) == list:
+            logging.debug(self.message)
             for url in self.message:
                 data = {
                     'group_id': self.group_id,
@@ -83,8 +85,11 @@ class send_group_msg():
                         }
                     }]
                 }
-                requests.post(self.url, json=data)
-            return
+                response = requests.post(self.url, json=data)
+                response = response.json()
+                if response['status'] == 'failed':
+                    break
+            return response['status']
         else:
             data = {
                 'group_id': self.group_id,
@@ -221,13 +226,15 @@ class handle_msg():
         'reply': 14,
     }
 
-    # 定义枚举量,命令类型
+    # 定义命令， 与开关
     commands = {
-        'help': 0,
+        'help': 1,
         'shop': 1,
-        'setu': 2,
-        'echo': 3,
-        'roll': 4,
+        'setu': 1,
+        'echo': 1,
+        'roll': 1,
+        'jrrp': 1,
+        '签到': 1,
     }
 
     def __init__(self, data):
@@ -263,19 +270,17 @@ class handle_msg():
                 except:
                     pass
                 pics = Setu(1, keyword).setu()
-                if pics == -1:
-                    send_group_msg(self.group_id, '少🦌一点').send_text()
-                else:
-                    send_group_msg(self.group_id, pics).send_img()
+                if type(pics) == list:
+                    sent = send_group_msg(self.group_id, pics).send_img()
+                    if sent == 'failed':
+                        send_group_msg(self.group_id, '少🦌一点').send_text()
             elif command == 'echo':
                 return send_group_msg('', self.raw_message[6:]).send_raw_msg(self.group_id)
             elif command == 'roll':
-                try:
-                    num = int(self.raw_message.split(' ')[1])
-                except:
-                    num = None
-                    pass
-                return self.dice(num)
+                return self.dice()
+            elif command == 'jrrp' or command == '签到':
+                return send_group_msg(self.group_id, JRRP(self.user_id).generate_jrrp()).send_text_and_pic(f'超天酱的今日份RP值:', self.user_id)
+
             return
 
         if self.message_type == 'at' and self.message['data']['qq'] == str(Config.self_id):
@@ -313,23 +318,43 @@ class handle_msg():
 
     def handle_keyword(self):
         pics = Setu(2, self.raw_message).setu()
-        if pics == -1:
-            send_group_msg(self.group_id, '少🦌一点').send_text()
-        else:
-            send_group_msg(self.group_id, pics).send_img()
+        if type(pics) == list:
+            sent = send_group_msg(self.group_id, pics).send_img()
+            if sent == 'failed':
+                send_group_msg(self.group_id, '少🦌一点').send_text()
+            return
+
+        # 处理关键词
+        keyword_reply = {
+            '晚安':'晚安喵～',
+            'oi':'Oi~',
+            '那我问你' : '你头怎么尖尖的',
+            '打b' : 'poh',
+            '宝' : '宝宝在吗',
+            '早上好' : '早上好说是',
+            '[CQ:at,qq=1342171891]' : '叫我主人干嘛',
+            'NB': '包的',
+            '不是哥们': '布什戈门',
+
+        }
+        # 从keyword_reply的键中找出存在于raw_message中的关键词
+        if [i for i in keyword_reply.keys() if i in self.raw_message]:
+            keyword = [i for i in keyword_reply.keys() if i in self.raw_message][0]
+            logging.info(keyword)
+            reply = keyword_reply[keyword]
+            send_group_msg(self.group_id, reply).send_text()
+            return
 
         return
 
-    def dice(self, result):
+    def dice(self):
         url = self.url + '/send_group_msg'
-        if result == None or result > 6:
-            result = random.randint(1, 6)
         data = {
             'group_id': self.group_id,
             'message': [{
                 'type': 'dice',
                 'data': {
-                    'result': result
+                    'result': random.randint(1, 6)
                 }
             }]
         }

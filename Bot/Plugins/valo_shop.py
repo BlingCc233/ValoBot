@@ -16,7 +16,7 @@ if not os.path.exists(assets_folder) or not os.path.isdir(assets_folder):
     parent_path = os.path.dirname(current_path)
     os.chdir(parent_path)
 
-from Plugins.valo_config import user_data
+from Bot.Plugins.valo_config import user_data
 
 def download_image(url, user_id,filename):
     response = requests.get(url)

@@ -8,4 +8,4 @@
 
  screen -S napcat -X quit
 
- 
+  screen -dmS napcat bash -c "/Applications/QQ.app/Contents/MacOS/QQ --no-sandbox -q "

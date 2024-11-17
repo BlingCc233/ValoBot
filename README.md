@@ -5,8 +5,9 @@
 </p>
 
 <div align="center">
-  
+
 # ValoBot
+
 > 🤖一个基于<a href="https://github.com/NapNeko/NapCatQQ">NapCat</a>和Python的开箱即用的机器人
 
 <p align="center">
@@ -16,7 +17,7 @@
   </a>
 -->
 </p>
-  
+
 _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/character/ai/)_
 
 </div>
@@ -28,15 +29,17 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 
 
   <br/>
-  
 
 ## 启动#TODO
 
 - [Napcat](https://github.com/NapNeko/NapCatQQ)或[LLOneBot](https://github.com/LLOneBot/LLOneBot)请自行参考相关项目教程进行配置
-- 无论你用哪种方式启动了插件，请确保你的服务器已开启`HTTP`服务，否则将无法接收到消息。且http监听端口应为`3000`，上报地址建议为`http://localhost:3050`。
+- 无论你用哪种方式启动了插件，请确保你的服务器已开启`HTTP`服务，否则将无法接收到消息。且http监听端口应为`3000`
+  ，上报地址建议为`http://localhost:3050`。
 - 下载或克隆本仓库，并运行`pip install -r requirements.txt`安装依赖。（建议在python虚拟环境中运行）
 - 修改`Config.py`中的`self_id`为机器人账号，`admin`为管理员帐号，同时将需要启用机器人的群号填入`group_white_list`中。
-- （注意：无畏契约每日商店功能需要自行抓包掌瓦的`app.mval.qq.com`请求头中`Cookie`的`userId`和`tid`并以下面的格式新建`valo_config.py`填入其中）
+- （注意：无畏契约每日商店功能需要自行抓包掌瓦的`app.mval.qq.com`请求头中`Cookie`的`userId`和`tid`
+  并以下面的格式新建`valo_config.py`填入其中）
+
 ```python
 user_data = {
     QQ号: {
@@ -46,20 +49,23 @@ user_data = {
 }
 # 多个QQ号请用`,`创建字典
 ```
+
 - 运行`bot_index.py`即可
 
 ## 功能
 
 > 功能列表可以参考`api.py`里的`handle_msg`类
 
-| 功能  | 说明                              |
-|-----|---------------------------------|
-| 防撤回 | 管理员要向机器人私聊recall 1/0开关功能(默认关)   |
-| 涩图bot | 发送/setu 或与涩图有关的关键句(参考[涩图](#涩图)) |
-| 无畏契约商店 | 需要自行抓包掌瓦的某些字段才能使用               |
-|     |                                 |
+| 功能     | 说明                                |
+|--------|-----------------------------------|
+| 防撤回    | 管理员要向机器人私聊`recall 1/0`开关功能(默认关)   |
+| 涩图bot  | 发送`/setu `或与涩图有关的关键句(参考[涩图](#涩图)) |
+| 无畏契约商店 | 需要自行抓包掌瓦的某些字段才能使用                 |
+| 今日人品   | 发送`/jrrp`或`/签到`获取今日运势             |
+|        |                                   |
 
 ## 施工中的功能
+
 - [ ] [狼人杀🐺](https://github.com/HUZHU-TEAM/Wolf-game "狼人杀")
 - [ ] 打断+1复读
 - [ ] QRcode二维码生成
@@ -72,11 +78,13 @@ user_data = {
 - [ ] AES本地加密缓存
 
 ## 涩图
+
 - 使用`/setu `自定义涩图类型，for instance:`/setu r18=1&tag=アロナ&num=2`
 - <a href="https://api.lolicon.app/#/">参考涩图API调用方法</a>
 - 也可以通过例如`给我来张涩图`，`给我来三张r18,ブルアカ涩图`, `整点涩图`，`看看ブルアカ涩图`请求涩图
 
 ## ！NOTICE ！
+
 - 1.本机器人仅供学习交流使用，请勿用于非法用途，否则后果自负。
 - 2.本机器人仍处于开发阶段，功能尚未完善，使用中的错误请反馈
 - 3.机器人的部署需自行搭建，请自行Refer。

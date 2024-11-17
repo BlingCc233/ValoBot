@@ -19,13 +19,13 @@ class Setu():
             setu_keyword = ['色图', 'setu', '涩图', '瑟图']
             # keyword字符串中不包含任意一个setu_keyword
             if not any(self.keyword.find(i) != -1 for i in setu_keyword):
-                return
+                return 1
 
             r18 = 0
             num = 1
             tag = []
 
-            prefix_setu = ['整点', '来张', '来点', '搞点', '我要', '看看', '给我', '来份']
+            prefix_setu = ['整点', '来张', '来点', '搞点', '我要', '看看', '来份']
             if any(self.keyword.startswith(i) for i in prefix_setu):
                 prefix = [i for i in prefix_setu if self.keyword.startswith(i)][0]
                 sufix = [i for i in setu_keyword if i in self.keyword][-1]
@@ -58,7 +58,7 @@ class Setu():
 
             start_word = '给我来'
             if self.keyword.startswith(start_word):
-                hanzi_quantity = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+                hanzi_quantity = ['一', '两', '三', '四', '五', '六', '七', '八', '九', '十']
                 quantity = self.keyword.split(start_word)[1][0]
                 if quantity not in hanzi_quantity:
                     quantity = 1
@@ -91,7 +91,9 @@ class Setu():
 
     def setu(self):
         response = self.keyword_process()
-        if response is None:
+        if response == 1:
+            return 1
+        if response == None:
             return -1
         urls = [i['urls']['small'] for i in response.json()['data']]
         return urls
