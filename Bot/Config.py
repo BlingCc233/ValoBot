@@ -16,7 +16,7 @@ listen_on_group_list = [309887999]
 
 is_recall = False
 
-version = '1.0.0'
+version = '1.0.1'
 
 
 
