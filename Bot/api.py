@@ -330,6 +330,9 @@ class handle_msg():
                     if i['type'] == 'text':
                         cmd = i['data']['text'][1:]
                         break
+                if not '/' in cmd:
+                    return self.at_or_reply()
+
             command = cmd.split(' ')[0].strip('/')
 
             if debug_mode:
@@ -411,16 +414,9 @@ class handle_msg():
 
             return
 
+
         if self.is_at_me() or self.is_reply_me():
-            if debug_mode:
-                logging.info('RECIEVED')
-            reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
-            reply_word = random.choice(reply_words)
-            send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
-                               f'{reply_word}').send_raw_msg(self.group_id)
-            return
-
-
+            return self.at_or_reply()
 
 
         else:
@@ -471,6 +467,17 @@ class handle_msg():
 
         return
 
+    def at_or_reply(self):
+        if self.is_at_me() or self.is_reply_me():
+            if debug_mode:
+                logging.info('RECIEVED')
+            reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
+            reply_word = random.choice(reply_words)
+            send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
+                               f'{reply_word}').send_raw_msg(self.group_id)
+            return
+
+
     # 历史遗留方法，暂时放在这里
     def valo_shop(self):
         shop = Plugins.valo_shop.get_shop(self.user_id)
@@ -479,6 +486,7 @@ class handle_msg():
             return
         # logging.info(shop)
         send_group_msg(self.group_id, shop).send_text_and_pic("每日商店", self.user_id)
+
 
     def dice(self):
         url = self.url + '/send_group_msg'
@@ -493,8 +501,10 @@ class handle_msg():
         }
         return requests.post(url, json=data)
 
+
     def is_at_me(self):
         return f'[CQ:at,qq={Config.self_id}]' in self.raw_message
+
 
     def is_reply_me(self):
         if not self.message_type == 'reply':
