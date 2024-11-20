@@ -5,7 +5,7 @@ import Plugins
 import requests
 import Config
 from Plugins.jrrp import JRRP
-
+from Plugins.answer import Answer_Book
 from Plugins.Setu import Setu
 
 debug_mode = Config.debug_mode
@@ -124,6 +124,26 @@ class send_group_msg():
                     "type": "image",
                     "data": {
                         "file": "base64://{0}".format(self.message)
+                    }
+                }
+            ]
+        }
+        return requests.post(self.url, json=data)
+
+    def reply_msg(self, message_id):
+        data = {
+            "group_id": self.group_id,
+            "message": [
+                {
+                    "type": "reply",
+                    "data": {
+                        "id": message_id
+                    }
+                },
+                {
+                    "type": "text",
+                    "data": {
+                        "text": self.message
                     }
                 }
             ]
@@ -280,6 +300,7 @@ class handle_msg():
         'jrrp': 1,
         '签到': 1,
         '赞我': 1,
+        '答案': 1,
 
     }
 
@@ -351,12 +372,17 @@ class handle_msg():
                 response = handle_user_event().send_like(self.user_id)
                 data = response.json()
                 if data['status'] == 'failed':
-                        return  send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
-                               f'今日点赞已达上限').send_raw_msg(self.group_id)
+                    return send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
+                                              f'今日点赞已达上限').send_raw_msg(self.group_id)
                 return send_group_msg(self.group_id, '已为你点赞十次').send_text()
 
+            elif command == '答案':
+                return send_group_msg(self.group_id, Answer_Book().get_answer()).reply_msg(self.message_id)
 
-            elif command == '禁言' and self.user_id == Config.admin:
+
+            elif command == '禁言':
+                if self.user_id != Config.admin:
+                    return send_group_msg(self.group_id, '你没有禁言的权限').send_text()
                 ban_id, ban_dur = '', ''
                 try:
                     ban_id = self.data['message'][1]['data']['qq']
@@ -368,21 +394,20 @@ class handle_msg():
                                                          f'禁言格式为：/禁言 @禁言对象 禁言时长(分钟)').send_text()
                 return handle_user_event().ban_user(self.group_id, int(ban_id), int(ban_dur))
 
-            elif command == '设精' and self.user_id == Config.admin:
+            elif command == '设精':
                 if not self.message_type == 'reply':
                     return send_group_msg(self.group_id, '请回复需要精华的消息').send_text()
                 essence_msg = self.message['data']['id']
                 return handle_user_event().set_essence_msg(int(essence_msg))
 
-            elif command == '取精' and self.user_id == Config.admin:
+            elif command == '取精':
                 if not self.message_type == 'reply':
-                    return send_group_msg(self.group_id, '请回复需要精华的消息').send_text()
+                    return send_group_msg(self.group_id, '请回复需要取消精华的消息').send_text()
                 essence_msg = self.message['data']['id']
                 response = handle_user_event().delete_essence_msg(int(essence_msg))
                 data = response.json()
                 if data['status'] == 'ok':
                     return send_group_msg(self.group_id, '已取消精华').send_text()
-
 
             return
 
