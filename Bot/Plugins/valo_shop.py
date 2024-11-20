@@ -16,7 +16,7 @@ if not os.path.exists(assets_folder) or not os.path.isdir(assets_folder):
     parent_path = os.path.dirname(current_path)
     os.chdir(parent_path)
 
-from Bot.Plugins.valo_config import user_data
+from Plugins.valo_config import user_data
 
 def download_image(url, user_id,filename):
     response = requests.get(url)
@@ -51,7 +51,8 @@ def get_shop(user_id):
 
 
     data = response.json()
-    if data['result'] == 1001:
+    # logging.info(data)
+    if data['result'] == 1001 or data['result'] == 1003:
         return None
 
     data = data['data'][0]
