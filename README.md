@@ -8,7 +8,7 @@
 
 # ValoBot
 
-> 🤖一个基于<a href="https://github.com/NapNeko/NapCatQQ">NapCat</a>和Python的开箱即用的机器人
+> 🤖一个基于<a href="https://github.com/NapNeko/NapCatQQ">NapCat</a>和<a href="https://github.com/pallets/flask">flask</a>的开箱即用的机器人
 
 <p align="center">
 <!--
@@ -37,6 +37,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
   ，上报地址建议为`http://localhost:3050`。
 - 下载或克隆本仓库，并运行`pip install -r requirements.txt`安装依赖。（建议在python虚拟环境中运行）
 - 修改`Config.py`中的`self_id`为机器人账号，`admin`为管理员帐号，同时将需要启用机器人的群号填入`group_white_list`中。
+- 一般需要后台静默运行`OtherUse/`下的所有文件，由于基于flask，所以支持热重载，无需重启。
 - （注意：无畏契约每日商店功能需要自行抓包掌瓦的`app.mval.qq.com`请求头中`Cookie`的`userId`和`tid`
   并以下面的格式新建`valo_config.py`填入其中）
 
