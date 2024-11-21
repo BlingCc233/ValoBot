@@ -6,3 +6,4 @@ toml==0.10.2
 urllib3==2.2.3
 uvicorn==0.32.0
 zipp==3.21.0
+huggingface-hub==0.26.2

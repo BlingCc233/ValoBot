@@ -25,7 +25,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 ## 声明
 
 > [!CAUTION]\
-> 请不要在 QQ 官方群聊和任何影响力较大的简中互联网平台（包括但不限于: 哔哩哔哩，微博，知乎，抖音等）发布和讨论任何与本插件存在相关性的信息
+> 请不要在 QQ 官方群聊和任何影响力较大的简中互联网平台（包括但不限于: 哔哩哔哩，微博，知乎，抖音等）发布和讨论任何与本框架存在相关性的信息
 
 
   <br/>
@@ -38,19 +38,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 - 下载或克隆本仓库，并运行`pip install -r requirements.txt`安装依赖。（建议在python虚拟环境中运行）
 - 修改`Config.py`中的`self_id`为机器人账号，`admin`为管理员帐号，同时将需要启用机器人的群号填入`group_white_list`中。
 - 一般需要后台静默运行`OtherUse/`下的所有文件，由于基于flask，所以支持热重载，无需重启。
-- （注意：无畏契约每日商店功能需要自行抓包掌瓦的`app.mval.qq.com`请求头中`Cookie`的`userId`和`tid`
-  并以下面的格式新建`valo_config.py`填入其中）
-
-```python
-user_data = {
-    QQ号: {
-        'userId': '',
-        'tid': ''
-    }
-}
-# 多个QQ号请用`,`创建字典
-```
-
+- 一些别的要求请查看`Plugins/`文件夹下的README.md
 - 运行`bot_index.py`即可
 
 ## 功能
