@@ -7,6 +7,7 @@ import Config
 from Plugins.jrrp import JRRP
 from Plugins.answer import Answer_Book
 from Plugins.Setu import Setu
+from Plugins.LLM import LLM
 
 debug_mode = Config.debug_mode
 if debug_mode:
@@ -15,6 +16,9 @@ if debug_mode:
     import json
     import subprocess
 
+
+
+llm = LLM()
 
 class send_private_msg():
     def __init__(self, user_id, message):
@@ -207,6 +211,13 @@ class handle_user_event():
         }
         return requests.post(self.url + event, json=data)
 
+    def delete_msg(self, message_id):
+        event = "/delete_msg"
+        data = {
+            "message_id": message_id
+        }
+        return requests.post(self.url + event, json=data)
+
 
 class cache_data():
     def __init__(self, data):
@@ -301,13 +312,13 @@ class handle_msg():
         '签到': 1,
         '赞我': 1,
         '答案': 1,
+        '设精': 1,
+        '取精': 1,
 
     }
 
     admin_commands = {
         '禁言': 1,
-        '设精': 1,
-        '取精': 1,
 
     }
 
@@ -471,10 +482,24 @@ class handle_msg():
         if self.is_at_me() or self.is_reply_me():
             if debug_mode:
                 logging.info('RECIEVED')
-            reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
-            reply_word = random.choice(reply_words)
-            send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
-                               f'{reply_word}').send_raw_msg(self.group_id)
+
+            for i in self.data['message']:
+                if i['type'] == 'text':
+                    user_input = i['data']['text']
+                    break
+
+            take_time = send_group_msg(self.group_id, '猫粮动脑袋中...').send_text()
+            take_time = take_time.json()
+            just_msg = take_time['data']['message_id']
+            response = llm.get_response(user_input, self.user_id)
+            handle_user_event().delete_msg(just_msg)
+            return send_group_msg(self.group_id, response).reply_msg(self.message_id)
+
+
+            # reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
+            # reply_word = random.choice(reply_words)
+            # send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
+            #                    f'{reply_word}').send_raw_msg(self.group_id)
             return
 
 

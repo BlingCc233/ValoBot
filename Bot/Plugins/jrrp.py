@@ -42,10 +42,10 @@ class JRRP:
 
 
     def generate_random_jrrp(self):
-        # 生成0-100的整数，概率集中在50-77
+        # 生成0-99的整数，概率集中在70~90
         while True:
-            value = random.randint(0, 100)
-            if 50 <= value <= 77 or random.random() < 0.3:
+            value = random.randint(0, 99)
+            if 70 <= value <= 90 or random.random() < 0.1:
                 return value
 
     def generate_image(self, jrrp_value):
