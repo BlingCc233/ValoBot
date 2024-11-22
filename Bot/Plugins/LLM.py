@@ -33,7 +33,7 @@ class LLM:
             model=self.model_name,
             messages=self.conversation_history[user_id],
             max_tokens=500,
-            temperature=1,
+            temperature=0.7,
             stream=True
         )
 
@@ -49,6 +49,10 @@ class LLM:
         print("\033[91;1m")
 
         return new_message["content"]
+
+    def new_conversation(self, user_id: str):
+        self.conversation_history.pop(user_id)
+        return
 
 
 # 示例使用

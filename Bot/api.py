@@ -488,6 +488,11 @@ class handle_msg():
                     user_input = i['data']['text']
                     break
 
+            if "新猫猫" in user_input:
+                llm.new_conversation(self.user_id)
+                return send_group_msg(self.group_id, "已经换上新猫猫了").reply_msg(self.message_id)
+
+
             take_time = send_group_msg(self.group_id, '猫粮动脑袋中...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
