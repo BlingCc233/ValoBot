@@ -483,17 +483,20 @@ class handle_msg():
             if debug_mode:
                 logging.info('RECIEVED')
 
+            user_input = -1
             for i in self.data['message']:
                 if i['type'] == 'text':
                     user_input = i['data']['text']
                     break
 
-            if "新猫猫" in user_input:
+            if user_input == -1:
+                return send_group_msg(self.group_id, '喵喵喵').send_text()
+            if "新早苗" in user_input:
                 llm.new_conversation(self.user_id)
-                return send_group_msg(self.group_id, "已经换上新猫猫了").reply_msg(self.message_id)
+                return send_group_msg(self.group_id, "已经换上新早苗了").reply_msg(self.message_id)
 
 
-            take_time = send_group_msg(self.group_id, '猫粮动脑袋中...').send_text()
+            take_time = send_group_msg(self.group_id, '猫粮动脑筋中...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
             response = llm.get_response(user_input, self.user_id)
