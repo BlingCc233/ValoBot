@@ -1,6 +1,9 @@
+import os
+
 from Plugins.llm_config import api_key
 from huggingface_hub import InferenceClient
 
+debug_mode = os.environ.get('DEBUG_BOT') == 'True'
 
 class LLM:
     def __init__(self):
@@ -44,7 +47,8 @@ class LLM:
 
         # 记录LLM的响应
         self.conversation_history[user_id].append(new_message)
-        print("\033[91;1m")
+        if debug_mode:
+            print("\033[91;1m")
 
         return new_message["content"]
 
