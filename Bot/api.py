@@ -37,7 +37,7 @@ class send_private_msg():
                 }
             }]
         }
-        requests.post(self.url, json=data)
+        return requests.post(self.url, json=data)
 
     def send_image(self):
         data = {
@@ -452,7 +452,7 @@ class handle_msg():
                 llm.new_conversation(self.user_id)
                 return send_private_msg(self.user_id, '已经换上新早苗了').send_text()
 
-            take_time = send_private_msg(self.user_id, '正在思考中...').send_text()
+            take_time = send_private_msg(self.user_id, '对方正在输入...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
             response = llm.get_response(self.raw_message, self.user_id)
