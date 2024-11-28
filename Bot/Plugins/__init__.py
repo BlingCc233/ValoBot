@@ -4,3 +4,4 @@ from . import Setu
 from . import jrrp
 from . import LLM
 from . import llm_config
+from . import text2img

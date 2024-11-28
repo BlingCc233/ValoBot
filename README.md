@@ -8,7 +8,8 @@
 
 # ValoBot
 
-> 🤖一个基于<a href="https://github.com/NapNeko/NapCatQQ">NapCat</a>和<a href="https://github.com/pallets/flask">flask</a>的开箱即用的机器人
+> 🤖一个基于<a href="https://github.com/NapNeko/NapCatQQ">NapCat</a>和<a href="https://github.com/pallets/flask">
+> flask</a>的开箱即用的机器人
 
 <p align="center">
 <!--
@@ -56,6 +57,9 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 | 设精/取精  | 回复某条消息并包含`/设精` `/取精`可以设置/取消精华消息            |
 | 答案之书   | 心里默想问题，发送`/答案`获得回答                         |
 | 语言模型   | 接入了hugging face的通义千问模型，有网络环境要求（@机器人可以对话）   |
+| AI语音回复 | 接入了`https://res.qpt.qq.com/qpilot` AI语音API |
+|        | 用`/echo_voice 文本`可以复读成语音消息                 |
+| 文生图    | `/draw PROMPT`输入文本，即可生成图片(出图时间感人)          |
 |        |                                            |
 
 ## 施工中的功能
@@ -63,6 +67,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 - [ ] [狼人杀🐺](https://github.com/HUZHU-TEAM/Wolf-game "狼人杀")
 - [ ] 打断+1复读
 - [ ] QRcode二维码生成
+- [X] AI文生图
 - [ ] 进群欢迎 ~~验证~~
 - [X] 群禁言
 - [ ] 防闪照

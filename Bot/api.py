@@ -8,6 +8,7 @@ from Plugins.jrrp import JRRP
 from Plugins.answer import Answer_Book
 from Plugins.Setu import Setu
 from Plugins.LLM import LLM
+from Plugins.text2img import text2img
 
 debug_mode = Config.debug_mode
 if debug_mode:
@@ -16,9 +17,8 @@ if debug_mode:
     import json
     import subprocess
 
-
-
 llm = LLM()
+
 
 class send_private_msg():
     def __init__(self, user_id, message):
@@ -151,6 +151,15 @@ class send_group_msg():
                     }
                 }
             ]
+        }
+        return requests.post(self.url, json=data)
+
+    def send_group_ai_record(self):
+        self.url = "http://localhost:3000/send_group_ai_record"
+        data = {
+            "group_id": self.group_id,
+            "character": "lucy-voice-female1",
+            "text": self.message
         }
         return requests.post(self.url, json=data)
 
@@ -314,6 +323,8 @@ class handle_msg():
         '答案': 1,
         '设精': 1,
         '取精': 1,
+        'echo_voice': 1,
+        'draw': 1,
 
     }
 
@@ -393,6 +404,18 @@ class handle_msg():
             elif command == '答案':
                 return send_group_msg(self.group_id, Answer_Book().get_answer()).reply_msg(self.message_id)
 
+            elif command == "echo_voice":
+                return send_group_msg(self.group_id, self.raw_message[12:]).send_group_ai_record()
+
+            elif command == 'draw':
+                prompt = ''
+                try:
+                    prompt = self.raw_message[6:]
+                except:
+                    pass
+                prmpt = text2img(prompt).translate_zh_en()
+                send_group_msg(self.group_id, f"Prompt:\n{prmpt}\n由于模型较大，图片生成时间可能比较长，多则几十秒，请耐心等待").reply_msg(self.message_id)
+                return send_group_msg(self.group_id, "base64://" + text2img(prompt).get_image(prmpt)).send_img()
 
             elif command == '禁言':
                 if self.user_id != Config.admin:
@@ -424,7 +447,6 @@ class handle_msg():
                     return send_group_msg(self.group_id, '已取消精华').send_text()
 
             return
-
 
         if self.is_at_me() or self.is_reply_me():
             return self.at_or_reply()
@@ -511,21 +533,19 @@ class handle_msg():
                 llm.new_conversation(self.user_id)
                 return send_group_msg(self.group_id, "已经换上新早苗了").reply_msg(self.message_id)
 
-
             take_time = send_group_msg(self.group_id, '猫粮动脑筋中...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
             response = llm.get_response(user_input, self.user_id)
             handle_user_event().delete_msg(just_msg)
-            return send_group_msg(self.group_id, response).reply_msg(self.message_id)
-
+            send_group_msg(self.group_id, response).reply_msg(self.message_id)
+            send_group_msg(self.group_id, response).send_group_ai_record()
 
             # reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
             # reply_word = random.choice(reply_words)
             # send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
             #                    f'{reply_word}').send_raw_msg(self.group_id)
             return
-
 
     # 历史遗留方法，暂时放在这里
     def valo_shop(self):
@@ -535,7 +555,6 @@ class handle_msg():
             return
         # logging.info(shop)
         send_group_msg(self.group_id, shop).send_text_and_pic("每日商店", self.user_id)
-
 
     def dice(self):
         url = self.url + '/send_group_msg'
@@ -550,10 +569,8 @@ class handle_msg():
         }
         return requests.post(url, json=data)
 
-
     def is_at_me(self):
         return f'[CQ:at,qq={Config.self_id}]' in self.raw_message
-
 
     def is_reply_me(self):
         if not self.message_type == 'reply':
