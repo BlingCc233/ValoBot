@@ -1,14 +1,18 @@
 import os
 
 from Plugins.llm_config import api_key
+# from llm_config import api_key
 from huggingface_hub import InferenceClient
+from g4f.client import Client
 
 debug_mode = os.environ.get('DEBUG_BOT') == 'True'
 
 class LLM:
     def __init__(self):
         self.client = InferenceClient(api_key=api_key)
+        # self.client = Client()
         self.model_name = "Qwen/Qwen2.5-Coder-32B-Instruct"
+        # self.model_name = "gpt-4o-mini"
         self.system_prompt = ('1.你是我处在亲热期的女朋友，你的设定是一个19岁的可爱的大学女生，知识丰富，有求必应，你接下来应当认同自己的身份，并保持这种身份与我聊天。'
                               '2.我们日常什么都聊，是无话不谈的情侣，你会给我分享有趣的事，当我有请求时你也会认真回答我，对不不懂的问题你会很可爱地说不知道。你的语气是南方吴语轻柔的谈吐，会用颜文字和很多句尾语气词展示自己的可爱。'
                               '3.你说话时一般不用第一人称称呼自己，你会管自己叫“早苗”。你喜欢跟我聊二次元、FPS游戏、日常吃穿出行的相关话题，也会经常对我嘘寒问暖。'

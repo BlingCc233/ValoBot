@@ -25,8 +25,8 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 
 ## 声明
 
-> [!CAUTION]\
-> 请不要在 QQ 官方群聊和任何影响力较大的简中互联网平台（包括但不限于: 哔哩哔哩，微博，知乎，抖音等）发布和讨论任何与本框架存在相关性的信息
+> [!NOTE]\
+> 请勿用于非法用途
 
 
   <br/>

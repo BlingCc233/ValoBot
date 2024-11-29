@@ -4,6 +4,9 @@ import base64
 import logging
 import random
 
+from PIL import Image
+from g4f.client import Client
+from g4f.Provider import ReplicateHome
 from huggingface_hub import InferenceClient
 from Plugins.llm_config import api_key
 import requests
@@ -12,6 +15,7 @@ import requests
 class trans_zh_en:
     def __init__(self):
         self.client = InferenceClient(api_key=api_key)
+        # self.client = Client()
         self.messages = [
             {
                 "role": "system",
@@ -34,9 +38,9 @@ class trans_zh_en:
 
         completion = self.client.chat.completions.create(
             seed=random.randint(0, 100000),
-            model="Qwen/Qwen2.5-Coder-32B-Instruct",
+            model="Qwen/QwQ-32B-Preview",
             messages=self.messages,
-            max_tokens=500
+            max_tokens=700
         )
 
         translated_text = completion.choices[0].message.content
@@ -45,7 +49,8 @@ class trans_zh_en:
 
 class text2img:
     def __init__(self, zh_prompt):
-        self.client = InferenceClient("Nishitbaria/Anime-style-flux-lora-Large", token=api_key)
+        # self.client = InferenceClient("Nishitbaria/Anime-style-flux-lora-Large", token=api_key)
+        self.client = Client()
         self.prompt = "Animeo, Anime, "
         self.zh_prompt = zh_prompt
         self.negative_prompt = "nsfw, paintings, cartoon, anime, sketches, worst quality, low quality, normal quality, lowres, watermark, monochrome, grayscale, ugly, blurry, Tan skin, dark skin, black skin, skin spots, skin blemishes, age spot, glans, disabled, bad anatomy, amputation, bad proportions, twins, missing body, fused body, extra head, poorly drawn face, bad eyes, deformed eye, unclear eyes, cross-eyed, long neck, malformed limbs, extra limbs, extra arms, missing arms, bad tongue, strange fingers, mutated hands, missing hands, poorly drawn hands, extra hands, fused hands, connected hand, bad hands, missing fingers, extra fingers, 4 fingers, 3 fingers, deformed hands, extra legs, bad legs, many legs, more than two legs, bad feet, extra feets, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
@@ -61,8 +66,20 @@ class text2img:
         else:
             en_prompt = self.translate_zh_en()
         self.prompt = self.prompt + en_prompt
-        logging.info(self.prompt)
-        image = self.client.text_to_image(prompt=self.prompt, seed=random.randint(0, 100000), width=768, height=768, num_inference_steps=16)
+        print(self.prompt)
+        response = self.client.images.generate(
+            model="playgroundai/playground-v2.5-1024px-aesthetic",
+            prompt=self.prompt,
+            provider=ReplicateHome,
+        )
+        image_path = response.data[0].url
+        # 文件在generated_images/
+        image_path = image_path.split('/')[2]
+        print(f"Generated image PATH: {image_path}")
+
+        image = Image.open(f"generated_images/{image_path}")
+
+        # image = self.client.text_to_image(prompt=self.prompt, seed=random.randint(0, 100000), width=768, height=768, num_inference_steps=16)
         # 保存图片到test/
         # image.save("test/test.png")
         # 转为base64
@@ -73,7 +90,7 @@ class text2img:
 
 
 if __name__ == "__main__":
-    zh_prompt = "一个拿着鸡尾酒的紫毛萝莉"
+    zh_prompt = "[Anime girl with teal hair, holding a love letter, slightly anxious and determined expression, slightly sweaty], [Digital painting, anime style], [Inspired by the style of various VTuber artists, a blend of soft and sharp lines], [Soft lighting, pastel color palette with teal, pink, and yellow accents, slightly desaturated colors, focus on the character's face, slightly blurred background, smooth rendering, subtle texture on the hair]"
     image_base64 = text2img(zh_prompt).get_image("")
 
     # print(image_base64)
