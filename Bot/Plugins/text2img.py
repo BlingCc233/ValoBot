@@ -26,6 +26,7 @@ class trans_zh_en:
                     "A homesick little dog."
                     "你必须输出："
                     "A small dog that misses home, with a sad look on its face and its tail tucked between its legs.It might be standing in front of a closed door or a gate, gazing longingly into the distance, as if hoping to catch a glimpse of its beloved home."
+                    "注意，你翻译后的内容不应过长，简单扩展联想即可"
                     "当我输入中文内容后，请翻译我需要的英文内容。翻译后的内容中不可以出现中文。")
             }
         ]
@@ -38,7 +39,7 @@ class trans_zh_en:
 
         completion = self.client.chat.completions.create(
             seed=random.randint(0, 100000),
-            model="Qwen/QwQ-32B-Preview",
+            model="Qwen/Qwen2.5-Coder-32B-Instruct",
             messages=self.messages,
             max_tokens=700
         )

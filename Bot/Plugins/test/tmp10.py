@@ -1,6 +1,5 @@
 import json
 import logging
-
 import httpx
 
 
@@ -73,7 +72,7 @@ class DuckDuckGoChat:
             "messages": messages
         }
 
-        print(data)
+        # print(data)
 
         with httpx.Client() as client:
             response = client.post(url, headers=headers, json=data)
@@ -92,6 +91,9 @@ class DuckDuckGoChat:
                         pass
 
             logging.info(assistant_response)
+
+            if "抱歉，我无法满足这个请求" in assistant_response:
+                assistant_response = "早苗不懂哦～"
 
             messages.append({"role": "assistant", "content": assistant_response})
 
@@ -166,21 +168,9 @@ if __name__ == "__main__":
     chat = DuckDuckGoChat()
     user_id = "user2"
 
-    response1 = chat.send_message(user_id, "我操你妈")
-    print(response1)
-    # 用户 ID
-    user_id = "user1"
+    # response1 = chat.send_message(user_id, "我操你妈")
 
-    # 发送消息并获取回复
-    response1 = chat.send_message(user_id, "你好，我是cc")
-    print(response1)
-
-    response2 = chat.send_message(user_id, "你自我介绍一下，并说出我的名字")
-    print(response2)
-
-    chat.new_conversation(user_id)
-
-    response1 = chat.send_message(user_id, "你自我介绍一下，并说出我的名字")
-    print(response1)
-
-
+    while True:
+        talk = input("> ")
+        response2 = chat.send_message(user_id, talk)
+        print(response2)

@@ -9,6 +9,7 @@ from Plugins.answer import Answer_Book
 from Plugins.Setu import Setu
 from Plugins.LLM import LLM
 from Plugins.text2img import text2img
+from Plugins.LLM import DuckDuckGoChat
 
 debug_mode = Config.debug_mode
 if debug_mode:
@@ -18,6 +19,7 @@ if debug_mode:
     import subprocess
 
 llm = LLM()
+chat = DuckDuckGoChat()
 
 
 class send_private_msg():
@@ -471,13 +473,13 @@ class handle_msg():
 
         else:
             if "新早苗" in self.raw_message:
-                llm.new_conversation(self.user_id)
+                chat.new_conversation(self.user_id)
                 return send_private_msg(self.user_id, '已经换上新早苗了').send_text()
 
             take_time = send_private_msg(self.user_id, '对方正在输入...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
-            response = llm.get_response(self.raw_message, self.user_id)
+            response = chat.get_response(self.raw_message, self.user_id)
             handle_user_event().delete_msg(just_msg)
             return send_private_msg(self.user_id, response).send_text()
 
@@ -529,22 +531,19 @@ class handle_msg():
 
             if user_input == -1:
                 return send_group_msg(self.group_id, '喵喵喵').send_text()
+
             if "新早苗" in user_input:
-                llm.new_conversation(self.user_id)
+                chat.new_conversation(self.user_id)
                 return send_group_msg(self.group_id, "已经换上新早苗了").reply_msg(self.message_id)
 
             take_time = send_group_msg(self.group_id, '猫粮动脑筋中...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
-            response = llm.get_response(user_input, self.user_id)
+            response = chat.get_response(user_input, self.user_id)
             handle_user_event().delete_msg(just_msg)
             send_group_msg(self.group_id, response).reply_msg(self.message_id)
             send_group_msg(self.group_id, response).send_group_ai_record()
 
-            # reply_words = ['你才是猫娘～', '叫我干嘛', '你干嘛～', '在', '？', '??', '喵喵喵']
-            # reply_word = random.choice(reply_words)
-            # send_group_msg('', f'[CQ:at,qq={self.user_id}]\n'
-            #                    f'{reply_word}').send_raw_msg(self.group_id)
             return
 
     # 历史遗留方法，暂时放在这里
