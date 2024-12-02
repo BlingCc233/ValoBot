@@ -153,7 +153,7 @@ class DuckDuckGoChat:
 
             logging.info(assistant_response)
 
-            if "抱歉，我无法满足这个请求" in assistant_response:
+            if "抱歉，我无法满足这个请求" in assistant_response or "抱歉，我无法满足该请求。" in assistant_response:
                 assistant_response = "早苗不懂哦～"
 
             messages.append({"role": "assistant", "content": assistant_response})

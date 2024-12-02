@@ -1,5 +1,8 @@
+import base64
+import collections
 import logging
 import random
+import time
 
 import Plugins
 import requests
@@ -18,15 +21,19 @@ if debug_mode:
     import json
     import subprocess
 
-llm = LLM()
-chat = DuckDuckGoChat()
+qwen = LLM()
+ddg = DuckDuckGoChat()
+chat_llm = ddg
+msg_stack = {}
+
+port = Config.server_port
 
 
 class send_private_msg():
     def __init__(self, user_id, message):
         self.user_id = user_id
         self.message = message
-        self.url = "http://localhost:3000/send_private_msg"
+        self.url = f"http://localhost:{port}/send_private_msg"
 
     def send_text(self):
         print(self.url)
@@ -58,7 +65,7 @@ class send_group_msg():
     def __init__(self, group_id, message):
         self.group_id = group_id
         self.message = message
-        self.url = "http://localhost:3000/send_group_msg"
+        self.url = f"http://localhost:{port}/send_group_msg"
 
     def send_raw_msg(self, group_id):
         data = {
@@ -157,7 +164,7 @@ class send_group_msg():
         return requests.post(self.url, json=data)
 
     def send_group_ai_record(self):
-        self.url = "http://localhost:3000/send_group_ai_record"
+        self.url = f"http://localhost:{port}/send_group_ai_record"
         data = {
             "group_id": self.group_id,
             "character": "lucy-voice-female1",
@@ -168,7 +175,7 @@ class send_group_msg():
 
 class handle_user_event():
     def __init__(self):
-        self.url = "http://localhost:3000"
+        self.url = f"http://localhost:{port}"
 
     def get_stranger_info(self, user_id):
         event = "/get_stranger_info"
@@ -253,6 +260,34 @@ class cache_data():
                 f.writelines(lines)
                 logging.info('Cache saved')
 
+        if self.data['post_type'] == 'message':
+            if self.data['message_type'] == 'group':
+                group_id = self.data['group_id']
+                # 开一个大小为3的字典栈msg_stack，用于存储每条group_id的消息
+                if group_id not in msg_stack:
+                    msg_stack[group_id] = collections.deque(maxlen=3)
+                    msg_stack[group_id].append(self.raw_message)
+                else:
+                    msg_stack[group_id].append(self.raw_message)
+
+                if debug_mode:
+                    logging.info(msg_stack)
+
+                if len(msg_stack[group_id]) == 3:
+                    if msg_stack[group_id][0] == msg_stack[group_id][1] == msg_stack[group_id][2]:
+                        # 清空栈
+                        msg_stack[group_id].clear()
+                        data = {
+                            'time': int(time.time()),
+                            'self_id': Config.self_id,
+                            'post_type': 'notice',
+                            'group_id': group_id,
+                            'notice_type': 'group_duplicate',
+                            'user_id': self.user_id,
+                            'message_id': self.message_id + 1
+                        }
+                        return requests.post(f"http://localhost:{Config.client_port}", json=data)
+
     def save_bbox(self):
         if 'raw_message' in self.data:
             with open('OtherUse/data.txt', 'a') as f:
@@ -272,6 +307,7 @@ class handle_notice():
     def __init__(self, data):
         self.group_id = data['group_id']
         self.message_id = data['message_id']
+        self.data = data
 
     def anti_recall(self):
         if debug_mode:
@@ -290,6 +326,21 @@ class handle_notice():
                 pass
 
             send_group_msg('', raw_message).send_raw_msg(self.group_id)
+
+    def no_more_duplicate(self):
+        nickname = handle_user_event().get_user_nickname(self.data["user_id"])
+        if debug_mode:
+            logging.info('no_more_duplicate REC')
+            logging.info(self.data["user_id"])
+        url = "https://api.tangdouz.com"
+        # set nickname
+        res = requests.get(url + '/qqname.php', params={'name': nickname, 'qq': self.data["user_id"]})
+        if debug_mode:
+            logging.info(res.text)
+        res = requests.get(url + '/wz/py.php', params={'q': self.data["user_id"], 'nr': "这是什么？+1，点一下"})
+        image_data = res.content
+        base64_encoded_image = base64.b64encode(image_data).decode('utf-8')
+        return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
 
 
 class handle_msg():
@@ -327,6 +378,8 @@ class handle_msg():
         '取精': 1,
         'echo_voice': 1,
         'draw': 1,
+        '喜报': 1,
+        '发电': 1,
 
     }
 
@@ -344,7 +397,7 @@ class handle_msg():
         self.raw_message = data['raw_message']
         self.message = data['message'][0]
         self.data = data
-        self.url = "http://localhost:3000"
+        self.url = f"http://localhost:{port}"
 
     def group_msg(self):
         if self.raw_message.startswith('/') or self.message_type == 'reply':
@@ -416,8 +469,28 @@ class handle_msg():
                 except:
                     pass
                 prmpt = text2img(prompt).translate_zh_en()
-                send_group_msg(self.group_id, f"Prompt:\n{prmpt}\n由于模型较大，图片生成时间可能比较长，多则几十秒，请耐心等待").reply_msg(self.message_id)
+                send_group_msg(self.group_id,
+                               f"Prompt:\n{prmpt}\n由于模型较大，图片生成时间可能比较长，多则几十秒，请耐心等待").reply_msg(
+                    self.message_id)
                 return send_group_msg(self.group_id, "base64://" + text2img(prompt).get_image(prmpt)).send_img()
+
+            elif command == '喜报':
+                content = str(handle_user_event().get_user_nickname(self.user_id)) + "活了"
+                try:
+                    content = self.raw_message.split(' ')[1]
+                except:
+                    pass
+                res = requests.get("https://api.tangdouz.com/wz/xb.php", params={"nr": content})
+                base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
+                return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
+
+            elif command == '发电':
+                nickname = handle_user_event().get_user_nickname(self.user_id)
+                res = requests.get("https://api.tangdouz.com/beill.php", params={'name': nickname})
+                get_mad = res.text.split(r"\r")
+                # 拼接所有get_mad为一个字符串
+                get_mad = "\n".join(get_mad)
+                return send_group_msg(self.group_id, f"{get_mad}").send_text()
 
             elif command == '禁言':
                 if self.user_id != Config.admin:
@@ -460,26 +533,41 @@ class handle_msg():
         return
 
     def private_msg(self):
+        global chat_llm
         if self.user_id == Config.admin:
             if self.raw_message == 'recall 1':
                 Config.is_recall = True
-                send_private_msg(self.user_id, '已开启撤回检测').send_text()
+                return send_private_msg(self.user_id, '已开启撤回检测').send_text()
             elif self.raw_message == 'recall 0':
                 Config.is_recall = False
-                send_private_msg(self.user_id, '已关闭撤回检测').send_text()
+                return send_private_msg(self.user_id, '已关闭撤回检测').send_text()
+            elif self.raw_message == 'debug 1':
+                Config.is_debug = True
+                return send_private_msg(self.user_id, '已开启调试模式').send_text()
+            elif self.raw_message == 'debug 0':
+                Config.is_debug = False
+                return send_private_msg(self.user_id, '已关闭调试模式').send_text()
+            elif self.raw_message == 'llm qwen':
+                ddg.user_sessions = {}
+                chat_llm = qwen
+                return send_private_msg(self.user_id, '目前模型：Qwen/Qwen2.5-Coder-32B-Instruct').send_text()
+            elif self.raw_message == 'llm ddg':
+                qwen.conversation_history = {}
+                chat_llm = ddg
+                return send_private_msg(self.user_id, '目前模型：DuckDuckGo/gpt-4o-mini').send_text()
 
         if self.user_id in Config.user_black_list:
             return
 
         else:
             if "新早苗" in self.raw_message:
-                chat.new_conversation(self.user_id)
+                chat_llm.new_conversation(self.user_id)
                 return send_private_msg(self.user_id, '已经换上新早苗了').send_text()
 
             take_time = send_private_msg(self.user_id, '对方正在输入...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
-            response = chat.get_response(self.raw_message, self.user_id)
+            response = chat_llm.get_response(self.raw_message, self.user_id)
             handle_user_event().delete_msg(just_msg)
             return send_private_msg(self.user_id, response).send_text()
 
@@ -530,16 +618,17 @@ class handle_msg():
                     break
 
             if user_input == -1:
-                return send_group_msg(self.group_id, '喵喵喵').send_text()
+                # 单纯at
+                return send_group_msg(self.group_id, f"喵喵喵").send_text()
 
             if "新早苗" in user_input:
-                chat.new_conversation(self.user_id)
+                chat_llm.new_conversation(self.user_id)
                 return send_group_msg(self.group_id, "已经换上新早苗了").reply_msg(self.message_id)
 
             take_time = send_group_msg(self.group_id, '猫粮动脑筋中...').send_text()
             take_time = take_time.json()
             just_msg = take_time['data']['message_id']
-            response = chat.get_response(user_input, self.user_id)
+            response = chat_llm.get_response(user_input, self.user_id)
             handle_user_event().delete_msg(just_msg)
             send_group_msg(self.group_id, response).reply_msg(self.message_id)
             send_group_msg(self.group_id, response).send_group_ai_record()
@@ -594,6 +683,8 @@ def handle(data):
     if data['post_type'] == 'notice':
         if data['notice_type'] == 'group_recall':
             handle_notice(data).anti_recall()
+        elif data['notice_type'] == 'group_duplicate':
+            handle_notice(data).no_more_duplicate()
         return
 
     cache_data(data).save_cache()
@@ -605,26 +696,3 @@ def handle(data):
         if data['message_type'] == 'private':
             handle_msg(data).private_msg()
             return
-
-    # 历史遗留问题
-    '''
-    if data['group_id'] == 701436956 and data['message'][0]['type'] == 'record':
-        cache_data(data).save_bbox()
-        # nmd = {
-        #     "message": str(data['raw_message'])
-        # }
-        # # 将字典写入 JSON 文件
-        # with open('OtherUse/nmd.json', 'w') as file:
-        #     json.dump(nmd, file, indent=4)
-        #
-        # # 工作目录切换到 OtherUse
-        # os.chdir('OtherUse')
-        # from OtherUse.voice_forward import send_voice
-        # send_voice(nmd['message'])
-        # os.system("python3.11 voice_forward.py")
-        # os.chdir('..')
-
-        # TODO
-        bash_command = f"python3.11 OtherUse/voice_forward.py '{data['raw_message']}'"
-        # 用bash 执行命令
-    '''

@@ -38,6 +38,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
   ，上报地址建议为`http://localhost:3050`。
 - 下载或克隆本仓库，并运行`pip install -r requirements.txt`安装依赖。（建议在python虚拟环境中运行）
 - 修改`Config.py`中的`self_id`为机器人账号，`admin`为管理员帐号，同时将需要启用机器人的群号填入`group_white_list`中。
+- 配置好`Config.py`中的`server_port`为napcat运行的端口，`client_port`为napcat上报端口。
 - 一般需要后台静默运行`OtherUse/`下的所有文件，由于基于flask，所以支持热重载，无需重启。
 - 一些别的要求请查看`Plugins/`文件夹下的README.md
 - 运行`bot_index.py`即可
@@ -60,6 +61,8 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 | AI语音回复 | 接入了`https://res.qpt.qq.com/qpilot` AI语音API  |
 |        | 用`/echo_voice 文本`可以复读成语音消息                  |
 | 文生图    | `/draw PROMPT`输入文本，即可生成图片(出图时间感人)           |
+| 发电     | 对你发癫                                        |
+| 喜报     | 整点喜报                                        |
 |        |                                             |
 
 ## 施工中的功能
@@ -75,6 +78,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 - [X] 今日人品
 - [ ] 数据库记录
 - [ ] AES本地加密缓存
+- [ ] 外部api本地化
 
 ## 涩图
 
