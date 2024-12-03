@@ -63,6 +63,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 | 文生图    | `/draw PROMPT`输入文本，即可生成图片(出图时间感人)           |
 | 发电     | 对你发癫                                        |
 | 喜报     | 整点喜报                                        |
+| 复读打断   | 打断群+1复读                                     |
 |        |                                             |
 
 ## 施工中的功能
@@ -85,6 +86,11 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 - 使用`/setu `自定义涩图类型，for instance:`/setu r18=1&tag=アロナ&num=2`
 - <a href="https://api.lolicon.app/#/">参考涩图API调用方法</a>
 - 也可以通过例如`给我来张涩图`，`给我来三张r18,ブルアカ涩图`, `整点涩图`，`看看ブルアカ涩图`请求涩图
+
+## 鸣谢
+- [NapCat](https://github.com/NapNeko/NapCatQQ)
+- [糖豆子](https://api.tangdouz.com/)
+- [Lolicon](https://api.lolicon.app)
 
 ## ！NOTICE ！
 
