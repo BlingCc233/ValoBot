@@ -163,12 +163,38 @@ class send_group_msg():
         }
         return requests.post(self.url, json=data)
 
+    def send_video(self):
+        data = {
+            "group_id": self.group_id,
+            "message": [
+                {
+                    "type": "video",
+                    "data": {
+                        "file": self.message
+                    }
+                }
+            ]
+        }
+        return requests.post(self.url, json=data)
+
     def send_group_ai_record(self):
         self.url = f"http://localhost:{port}/send_group_ai_record"
         data = {
             "group_id": self.group_id,
             "character": "lucy-voice-female1",
             "text": self.message
+        }
+        return requests.post(self.url, json=data)
+
+    def send_record(self):
+        data = {
+            "group_id": self.group_id,
+            "message": [{
+                "type": "record",
+                "data": {
+                    "file": self.message
+                }
+            }]
         }
         return requests.post(self.url, json=data)
 
@@ -380,6 +406,8 @@ class handle_msg():
         'draw': 1,
         '喜报': 1,
         '发电': 1,
+        'video': 1,
+        '王者': 1
 
     }
 
@@ -491,6 +519,23 @@ class handle_msg():
                 # 拼接所有get_mad为一个字符串
                 get_mad = "\n".join(get_mad)
                 return send_group_msg(self.group_id, f"{get_mad}").send_text()
+
+            elif command == 'video':
+                res = requests.get("https://api.tangdouz.com/abz/vid.php")
+                vid_url = res.text
+                return send_group_msg(self.group_id, vid_url).send_video()
+
+            elif command == '王者':
+                character = '瑶'
+                try:
+                    character = self.raw_message.split(' ')[1]
+                except:
+                    pass
+                res = requests.get('https://api.tangdouz.com/wzyyb.php', params={'nr': character})
+                data = res.json()
+                choose = random.randint(1, data['xnum']) - 1
+                return send_group_msg(self.group_id, data['data'][choose]['url']).send_record()
+
 
             elif command == '禁言':
                 if self.user_id != Config.admin:
