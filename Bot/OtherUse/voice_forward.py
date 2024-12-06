@@ -23,7 +23,6 @@ def send_voice(msg):
 if __name__ == '__main__':
     # 定时任务每两小时执行一次
     while True:
-        time.sleep(10)
         # 如果data.txt存在，则发送
         if os.path.exists('data.txt'):
             print('data.txt存在')
@@ -35,6 +34,9 @@ if __name__ == '__main__':
             os.remove('data.txt')
         else:
             print('data.txt不存在')
+
+
+        time.sleep(7200)
 
 
 

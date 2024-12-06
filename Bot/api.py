@@ -315,7 +315,7 @@ class cache_data():
                         return requests.post(f"http://localhost:{Config.client_port}", json=data)
 
     def save_bbox(self):
-        if 'raw_message' in self.data:
+        if 'raw_message' in self.data and random.random() < 0.2:
             with open('OtherUse/data.txt', 'a') as f:
                 f.write(str(self.raw_message) + '\n')
 
@@ -407,7 +407,7 @@ class handle_msg():
         '喜报': 1,
         '发电': 1,
         'video': 1,
-        '王者': 1
+        '农': 1
 
     }
 
@@ -525,7 +525,7 @@ class handle_msg():
                 vid_url = res.text
                 return send_group_msg(self.group_id, vid_url).send_video()
 
-            elif command == '王者':
+            elif command == '农':
                 character = '瑶'
                 try:
                     character = self.raw_message.split(' ')[1]
