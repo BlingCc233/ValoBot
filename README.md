@@ -64,6 +64,7 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 | 发电     | 对你发癫                                        |
 | 喜报     | 整点喜报                                        |
 | 复读打断   | 打断群+1复读                                     |
+| 抽签     | 浅草寺抽签                                       |
 |        |                                             |
 
 ## 施工中的功能

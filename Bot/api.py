@@ -407,7 +407,8 @@ class handle_msg():
         '喜报': 1,
         '发电': 1,
         'video': 1,
-        '农': 1
+        '农': 1,
+        '抽签': 1,
 
     }
 
@@ -508,7 +509,10 @@ class handle_msg():
                     content = self.raw_message.split(' ')[1]
                 except:
                     pass
-                res = requests.get("https://api.tangdouz.com/wz/xb.php", params={"nr": content})
+                data = {
+                    "content": content,
+                }
+                res = requests.post("http://amywxd.site:3051/api/xb", json=data)
                 base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
                 return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
 
@@ -535,6 +539,11 @@ class handle_msg():
                 data = res.json()
                 choose = random.randint(1, data['xnum']) - 1
                 return send_group_msg(self.group_id, data['data'][choose]['url']).send_record()
+
+            elif command == '抽签':
+                res = requests.get("http://amywxd.site:3051/api/qcsimg")
+                base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
+                return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
 
 
             elif command == '禁言':
