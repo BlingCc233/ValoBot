@@ -409,6 +409,7 @@ class handle_msg():
         'video': 1,
         '农': 1,
         '抽签': 1,
+        'qrcode': 1,
 
     }
 
@@ -512,7 +513,7 @@ class handle_msg():
                 data = {
                     "content": content,
                 }
-                res = requests.post("http://amywxd.site:3051/api/xb", json=data)
+                res = requests.get("https://sdk.blingcc.eu.org/api/xb", params=data)
                 base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
                 return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
 
@@ -541,9 +542,20 @@ class handle_msg():
                 return send_group_msg(self.group_id, data['data'][choose]['url']).send_record()
 
             elif command == '抽签':
-                res = requests.get("http://amywxd.site:3051/api/qcsimg")
+                res = requests.get("https://sdk.blingcc.eu.org/api/qcsimg")
                 base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
                 return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
+
+            elif command == 'qrcode':
+                text = 'V我50'
+                try:
+                    text = self.raw_message.split(' ')[1]
+                except:
+                    pass
+                res = requests.get("https://sdk.blingcc.eu.org/api/t2qr?text=" + text)
+                base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
+                return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
+
 
 
             elif command == '禁言':
