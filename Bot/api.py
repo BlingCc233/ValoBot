@@ -542,7 +542,7 @@ class handle_msg():
                 return send_group_msg(self.group_id, data['data'][choose]['url']).send_record()
 
             elif command == '抽签':
-                res = requests.get("https://sdk.blingcc.eu.org/api/qcsimg")
+                res = requests.get("https://sdk.blingcc.eu.org/api/qcs")
                 base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
                 return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
 

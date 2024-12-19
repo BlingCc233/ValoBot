@@ -70,8 +70,8 @@ _ValoBot的动漫形象来源于[OhtoAi](https://wonder-egg-priority.com/charact
 ## 施工中的功能
 
 - [ ] [狼人杀🐺](https://github.com/HUZHU-TEAM/Wolf-game "狼人杀")
-- [ ] 打断+1复读
-- [ ] QRcode二维码生成
+- [X] 打断+1复读
+- [X] QRcode二维码生成
 - [X] AI文生图
 - [ ] 进群欢迎 ~~验证~~
 - [X] 群禁言
