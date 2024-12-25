@@ -410,6 +410,7 @@ class handle_msg():
         '农': 1,
         '抽签': 1,
         'qrcode': 1,
+        '放假': 1,
 
     }
 
@@ -555,6 +556,10 @@ class handle_msg():
                 res = requests.get("https://sdk.blingcc.eu.org/api/t2qr?text=" + text)
                 base64_encoded_image = base64.b64encode(res.content).decode('utf-8')
                 return send_group_msg(self.group_id, "base64://" + base64_encoded_image).send_img()
+
+            elif command == '放假':
+                res = requests.get("https://sdk.blingcc.eu.org/api/holiday")
+                return send_group_msg(self.group_id, res.text).send_text()
 
 
 
